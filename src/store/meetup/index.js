@@ -1,4 +1,5 @@
 import * as firebase from 'firebase';
+import router from '../../router/router'
 
 export default {
   state: {
@@ -60,6 +61,7 @@ export default {
         });
     },
     createMeetup({ commit, getters }, payload) {
+      commit('setLoading', true);
       const meetup = {
         title: payload.title,
         location: payload.location,
@@ -102,9 +104,13 @@ export default {
             imageUrl: imageUrl,
             id: key,
           });
+          commit('setLoading', false);
+          router.push("/meetups");
         })
         .catch(error => {
+          commit('setLoading', false);
           console.log(error);
+          router.push('/meetups');
         });
 
       // Reach out to firebase and store it

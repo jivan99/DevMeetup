@@ -1,80 +1,93 @@
 <template>
   <v-container>
-    <v-layout row>
-      <v-flex xs12 sm6 offset-sm3>
-        <h1 class="primary--text">Create a new Meetup</h1>
+    <v-layout row wrap v-if="loading">
+      <v-flex xs12 class="text-xs-center">
+        <v-progress-circular
+          indeterminate
+          class="primary--text"
+          :width="7"
+          :size="70"
+          v-if="loading"
+        ></v-progress-circular>
       </v-flex>
     </v-layout>
-    <v-layout row>
-      <v-flex xs12>
-        <form @submit.prevent="onCreateMeetup">
-          <v-layout>
-            <v-flex xs12 sm6 offset-sm3>
-              <v-text-field label="Title" v-model="title" required></v-text-field>
-            </v-flex>
-          </v-layout>
-          <v-layout row>
-            <v-flex xs12 sm6 offset-sm3>
-              <v-text-field
-                name="location"
-                label="Location"
-                id="location"
-                required
-                v-model="location"
-              ></v-text-field>
-            </v-flex>
-          </v-layout>
-          <v-layout row>
-            <v-flex xs12 sm6 offset-sm3>
-              <input
-                type="file"
-                style="display: none;"
-                ref="fileInput"
-                accept="image/*"
-                @change="onFilePicked"
-              />
-              <v-btn raised class="primary" @click="onPickFile">Upload Image</v-btn>
-            </v-flex>
-          </v-layout>
-          <v-layout row>
-            <v-flex xs12 sm6 offset-sm3>
-              <img :src="imageUrl" height="200" />
-            </v-flex>
-          </v-layout>
-          <v-layout row>
-            <v-flex xs12 sm6 offset-sm3>
-              <v-textarea
-                name="description"
-                label="Description"
-                id="description"
-                v-model="description"
-                required
-              ></v-textarea>
-            </v-flex>
-          </v-layout>
-          <v-layout row class="mb-3">
-            <v-flex xs12 sm6 offset-sm3>
-              <h1 class="primary--text">Choose Date &amp; Time</h1>
-            </v-flex>
-          </v-layout>
-          <v-layout row class="mb-3">
-            <v-flex xs12 sm6 offset-sm3>
-              <v-date-picker v-model="date" :min="minDate"></v-date-picker>
-            </v-flex>
-          </v-layout>
-          <v-layout row class="mb-4">
-            <v-flex xs12 sm6 offset-sm3>
-              <v-time-picker v-model="time" :format="'ampm'"></v-time-picker>
-            </v-flex>
-          </v-layout>
-          <v-layout row>
-            <v-flex xs12 sm6 offset-sm3>
-              <v-btn class="primary" :disabled="!formIsValid" type="submit">Create meetup</v-btn>
-            </v-flex>
-          </v-layout>
-        </form>
-      </v-flex>
-    </v-layout>
+    <div v-else>
+      <v-layout row>
+        <v-flex xs12 sm6 offset-sm3>
+          <h1 class="primary--text">Create a new Meetup</h1>
+        </v-flex>
+      </v-layout>
+      <v-layout row>
+        <v-flex xs12>
+          <form @submit.prevent="onCreateMeetup">
+            <v-layout>
+              <v-flex xs12 sm6 offset-sm3>
+                <v-text-field label="Title" v-model="title" required></v-text-field>
+              </v-flex>
+            </v-layout>
+            <v-layout row>
+              <v-flex xs12 sm6 offset-sm3>
+                <v-text-field
+                  name="location"
+                  label="Location"
+                  id="location"
+                  required
+                  v-model="location"
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+            <v-layout row>
+              <v-flex xs12 sm6 offset-sm3>
+                <input
+                  type="file"
+                  style="display: none;"
+                  ref="fileInput"
+                  accept="image/*"
+                  @change="onFilePicked"
+                />
+                <v-btn raised class="primary" @click="onPickFile">Upload Image</v-btn>
+              </v-flex>
+            </v-layout>
+            <v-layout row>
+              <v-flex xs12 sm6 offset-sm3>
+                <img :src="imageUrl" height="200" />
+              </v-flex>
+            </v-layout>
+            <v-layout row>
+              <v-flex xs12 sm6 offset-sm3>
+                <v-textarea
+                  name="description"
+                  label="Description"
+                  id="description"
+                  v-model="description"
+                  required
+                ></v-textarea>
+              </v-flex>
+            </v-layout>
+            <v-layout row class="mb-3">
+              <v-flex xs12 sm6 offset-sm3>
+                <h1 class="primary--text">Choose Date &amp; Time</h1>
+              </v-flex>
+            </v-layout>
+            <v-layout row class="mb-3">
+              <v-flex xs12 sm6 offset-sm3>
+                <v-date-picker v-model="date" :min="minDate"></v-date-picker>
+              </v-flex>
+            </v-layout>
+            <v-layout row class="mb-4">
+              <v-flex xs12 sm6 offset-sm3>
+                <v-time-picker v-model="time" :format="'ampm'"></v-time-picker>
+              </v-flex>
+            </v-layout>
+            <v-layout row>
+              <v-flex xs12 sm6 offset-sm3>
+                <v-btn class="primary" :disabled="!formIsValid" type="submit">Create meetup</v-btn>
+              </v-flex>
+            </v-layout>
+          </form>
+        </v-flex>
+      </v-layout>
+    </div>
   </v-container>
 </template>
 
@@ -100,6 +113,9 @@ export default {
         this.imageUrl !== "" &&
         this.description !== ""
       );
+    },
+    loading() {
+      return this.$store.getters.getLoading;
     }
   },
   methods: {
@@ -108,7 +124,7 @@ export default {
         return;
       }
       if (!this.image) {
-        return
+        return;
       }
       const meetupData = {
         title: this.title,
@@ -119,7 +135,6 @@ export default {
         time: this.time
       };
       this.$store.dispatch("createMeetup", meetupData);
-      this.$router.push("/meetups");
     },
     onPickFile() {
       this.$refs.fileInput.click();
